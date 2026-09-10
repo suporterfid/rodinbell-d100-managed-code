@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!--
+      This repository pins package versions in the project files, not centrally. The file exists to
+      stop MSBuild walking further up: consumed as a submodule, the next Directory.Packages.props
+      above this one belongs to the host repository, and inheriting it fails the restore with NU1008
+      against every PackageReference here.
+    -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>
