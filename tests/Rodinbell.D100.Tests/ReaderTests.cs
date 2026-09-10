@@ -123,7 +123,7 @@ public sealed class ReaderTests
         using var timeout = new CancellationTokenSource(30);
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => reader.GetTemperatureAsync(timeout.Token));
         Assert.Equal(0, device.ActiveTransports);
-        Assert.Single(device.Requests.Where(r => r[3] == 0x7B));
+        Assert.Single(device.Requests, r => r[3] == 0x7B);
         device.Intercept = null;
         Assert.Equal(18, await reader.GetPowerAsync());
     }

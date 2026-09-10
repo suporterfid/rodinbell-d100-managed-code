@@ -13,7 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="10.0.12" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="10.0.12" />
   </ItemGroup>
   <ItemGroup><InternalsVisibleTo Include="Rodinbell.D100.Tests" /></ItemGroup>
   <ItemGroup>
