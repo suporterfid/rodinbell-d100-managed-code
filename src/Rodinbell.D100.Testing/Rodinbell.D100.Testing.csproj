@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Description>An in-memory Rodinbell D100 that speaks the real frame protocol, for testing a consumer without hardware.</Description>
+    <PackageId>Rodinbell.D100.Testing</PackageId>
+    <Version>0.1.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>RFID;Rodinbell;D100;testing;fake</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/suporterfid/rodinbell-d100-managed-code</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Rodinbell.D100/Rodinbell.D100.csproj" />
+  </ItemGroup>
+</Project>

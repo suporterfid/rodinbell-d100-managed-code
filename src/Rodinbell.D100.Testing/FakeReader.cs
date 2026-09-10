@@ -1,10 +1,31 @@
 using System.Collections.Concurrent;
 
-namespace Rodinbell.D100.Tests;
+namespace Rodinbell.D100.Testing;
 
-internal sealed class FakeReader : IReaderTransportFactory
+/// <summary>
+/// An in-memory D100 that speaks the real frame protocol.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Shipped rather than kept in this repository's test assembly, because a consumer driving this
+/// library needs the same thing and writing a second one would mean two implementations of one frame
+/// protocol drifting apart - with the copy nobody here maintains being the one that goes stale.
+/// </para>
+/// <para>
+/// It answers the command set faithfully and carries the fault injection this repository's own tests
+/// need: a corrupt reply, a refused command, a mid-round USB removal, a withheld inventory summary.
+/// Those are useful to a consumer too - a driver that only works against a reader which never
+/// misbehaves is not finished.
+/// </para>
+/// <para>
+/// In a separate assembly from the library on purpose: the library is referenced by hosts that
+/// publish Native AOT, and test code has no business in that graph.
+/// </para>
+/// </remarks>
+
+public sealed class FakeReader : IReaderTransportFactory
 {
-    internal static readonly PortDescriptor Unit = new("COM4", "unit-A", "Test D100", 0x0403, 0x6001);
+    public static readonly PortDescriptor Unit = new("COM4", "unit-A", "Test D100", 0x0403, 0x6001);
     public List<PortDescriptor> Ports { get; } = [Unit];
     public ConcurrentQueue<byte[]> Requests { get; } = new();
     public ConcurrentQueue<string> OpenedPorts { get; } = new();
@@ -33,7 +54,7 @@ internal sealed class FakeReader : IReaderTransportFactory
         return new Transport(this);
     }
 
-    internal static byte[] Frame(byte cmd, params byte[] payload)
+    public static byte[] Frame(byte cmd, params byte[] payload)
     {
         var bytes = new byte[payload.Length + 5];
         bytes[0] = 0xA0; bytes[1] = (byte)(payload.Length + 3); bytes[2] = 1; bytes[3] = cmd;
@@ -41,11 +62,11 @@ internal sealed class FakeReader : IReaderTransportFactory
         bytes[^1] = unchecked((byte)-bytes.Take(bytes.Length - 1).Sum(b => b));
         return bytes;
     }
-    internal static byte[] Tag => Convert.FromHexString("083000E2801191A50300650518E79963");
-    internal static byte[] Summary => [0, 0, 17, 0, 0, 0, 1];
-    internal static byte[] BufferTag => Convert.FromHexString("0001103000E2801191A50300650518E7991234630803");
+    public static byte[] Tag => Convert.FromHexString("083000E2801191A50300650518E79963");
+    public static byte[] Summary => [0, 0, 17, 0, 0, 0, 1];
+    public static byte[] BufferTag => Convert.FromHexString("0001103000E2801191A50300650518E7991234630803");
 
-    internal sealed class Transport(FakeReader device) : IReaderTransport
+    public sealed class Transport(FakeReader device) : IReaderTransport
     {
         private readonly ConcurrentQueue<byte> incoming = new();
         private bool waitingSummary;

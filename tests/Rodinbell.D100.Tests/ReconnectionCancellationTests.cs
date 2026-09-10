@@ -1,3 +1,4 @@
+using Rodinbell.D100.Testing;
 using Xunit;
 
 namespace Rodinbell.D100.Tests;
