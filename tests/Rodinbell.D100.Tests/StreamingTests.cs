@@ -64,16 +64,24 @@ public sealed class StreamingTests
     public async Task Command_waits_for_current_round_and_iterator_disposal_stops_renewal()
     {
         var device = new FakeReader { BlockSummary = true };
-        await using var reader = new D100Reader(device, Options);
+        // Allow CI to schedule the test continuation while the summary is intentionally held.
+        await using var reader = new D100Reader(device, Options with { RoundTimeout = TimeSpan.FromSeconds(5) });
         await reader.ConnectAsync();
         var stream = reader.ReadTagsAsync(new ReadingOptions { Interval = TimeSpan.FromSeconds(1) }).GetAsyncEnumerator();
-        Assert.True(await stream.MoveNextAsync());
-        var power = reader.GetPowerAsync();
-        Assert.False(power.IsCompleted);
-        Assert.DoesNotContain(device.Requests, r => r[3] == 0x77);
-        device.SummaryReleased.Set();
-        Assert.Equal(18, await power);
-        await stream.DisposeAsync();
+        try
+        {
+            Assert.True(await stream.MoveNextAsync());
+            var power = reader.GetPowerAsync();
+            Assert.False(power.IsCompleted);
+            Assert.DoesNotContain(device.Requests, r => r[3] == 0x77);
+            device.SummaryReleased.Set();
+            Assert.Equal(18, await power);
+        }
+        finally
+        {
+            device.SummaryReleased.Set();
+            await stream.DisposeAsync();
+        }
         Assert.Equal(1, device.Inventories);
         Assert.Equal(ReaderState.Connected, reader.State);
     }
