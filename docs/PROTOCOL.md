@@ -26,6 +26,17 @@ with DTR and RTS disabled. Discovery can also probe 38400 baud.
 | Persistent FastTID, explicitly requested | `8D` |
 | Buzzer / temperature | `7A` / `7B` |
 
+### Status bytes seen on hardware
+
+| Status | Meaning |
+|---|---|
+| `0x10` | the command changed something and was acknowledged |
+| `0x48` | a parameter was outside the range the reader accepts |
+
+`0x48` is what `0x66` answers for any transmit power outside 18–26 dBm, measured by sweeping 0–30 on
+firmware 1.9 — see [hardware validation](HARDWARE.md). A caller that sends a bad value gets this and
+nothing else to go on, so it is worth naming.
+
 One transaction owns the byte stream. Responses must match address and command.
 The decoder handles fragmentation, bounds and checksums before interpreting payloads.
 Single-byte status responses are classified before exact seven-byte real-time summaries;
