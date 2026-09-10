@@ -5,7 +5,7 @@ Third-party dependencies and reference projects keep their respective licenses.
 
 ## Dependencies
 
-The library uses Microsoft's `System.IO.Ports` and `System.Management` 8.0.0 packages,
+The library uses Microsoft's `System.IO.Ports` and `System.Management` packages,
 distributed under MIT. Development dependencies include Microsoft.NET.Test.Sdk, xUnit
 and the xUnit Visual Studio adapter. Exact direct and transitive dependency versions
 and content hashes are recorded in each project's `packages.lock.json`; package license
