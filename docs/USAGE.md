@@ -91,7 +91,7 @@ Except `DisposeAsync`, all methods below accept a `CancellationToken` (named
 | API | Command / behavior |
 | --- | --- |
 | `DiscoverAsync`, `ConnectAsync` | Firmware handshake `0x72`, normally 115200 then 38400 baud |
-| `GetPowerAsync`, `SetPowerAsync` | `0x77`, temporary `0x66`; D100 range 18–26 dBm |
+| `GetPowerAsync`, `SetPowerAsync` | `0x77`, temporary `0x66`; D100 range 18–26 dBm, measured on firmware 1.9. Outside it the reader answers `0x48` |
 | `ReadTagsAsync` | Repeated finite `0x89` inventory rounds; `IAsyncEnumerable<TagRead>` |
 | `StopReadingAsync` | Stop scheduling rounds and drain the current round |
 | `DisconnectAsync`, `DisposeAsync` | Stop inventory/recovery and close the serial handle |
