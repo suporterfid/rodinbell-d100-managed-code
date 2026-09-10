@@ -1,5 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!--
+      net8.0 keeps the Windows transport: FTDI registry plus WMI, which pins a reader to a Windows
+      device identity across reconnects. net10.0 is the portable subset - protocol, reader and a
+      System.IO.Ports transport - carrying no System.Management and no Windows-only code, so a
+      consumer that publishes Native AOT for Linux can reference it without the trim analyzer
+      meeting WMI.
+    -->
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <Description>Managed serial protocol client for the Rodinbell D100 UHF RFID reader on Windows.</Description>
     <PackageId>Rodinbell.D100</PackageId>
     <Version>0.1.0</Version>

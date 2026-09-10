@@ -22,10 +22,17 @@ public sealed partial class D100Reader : IAsyncDisposable
     private long reconnectionCount;
     private Task? disposal;
 
+#if NET8_0
     [SupportedOSPlatform("windows")]
     public D100Reader(ReaderOptions? options = null) : this(new WindowsSerialTransportFactory(), options) { }
+#endif
 
-    internal D100Reader(IReaderTransportFactory factory, ReaderOptions? options = null)
+    /// <summary>
+    /// Drives the reader over a caller-supplied transport. This is the only constructor on the
+    /// portable target: identity-pinned discovery is Windows-only, so a portable host names its
+    /// port rather than having one found for it.
+    /// </summary>
+    public D100Reader(IReaderTransportFactory factory, ReaderOptions? options = null)
     {
         this.factory = factory;
         this.options = (options ?? new ReaderOptions()).Validated();
@@ -37,11 +44,26 @@ public sealed partial class D100Reader : IAsyncDisposable
     public Exception? LastError { get; private set; }
     public long ReconnectionCount => Interlocked.Read(ref reconnectionCount);
 
+#if NET8_0
     [SupportedOSPlatform("windows")]
     public static Task<IReadOnlyList<ReaderInfo>> DiscoverAsync(ReaderOptions? options = null, CancellationToken cancellationToken = default)
     {
         var settings = (options ?? new ReaderOptions()).Validated();
         return Task.Run(() => ReaderDiscovery.Scan(new WindowsSerialTransportFactory(), settings, cancellationToken), cancellationToken);
+    }
+#endif
+
+    /// <summary>
+    /// Probes every port the factory offers and reports the readers that answered. The portable
+    /// overload: the caller supplies the transport, so this works wherever System.IO.Ports does.
+    /// </summary>
+    public static Task<IReadOnlyList<ReaderInfo>> DiscoverAsync(
+        IReaderTransportFactory factory, ReaderOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+
+        var settings = (options ?? new ReaderOptions()).Validated();
+        return Task.Run(() => ReaderDiscovery.Scan(factory, settings, cancellationToken), cancellationToken);
     }
 
     public async Task<ReaderInfo> ConnectAsync(CancellationToken cancellationToken = default)
