@@ -1,16 +1,31 @@
 # Rodinbell D100 Managed Code
 
-A managed C# client for the Rodinbell D100 UHF RFID reader on Windows, targeting
-.NET 8. Communicates directly over USB serial using Microsoft's `System.IO.Ports`
-and identifies connected devices through `System.Management`. No vendor DLL,
-application P/Invoke, or x86 restriction.
+A managed C# client for the Rodinbell D100 UHF RFID reader, targeting .NET 8 and
+.NET 10. Communicates directly over USB serial using Microsoft's `System.IO.Ports`.
+No vendor DLL, application P/Invoke, or x86 restriction.
+
+Two targets, because identity-pinned discovery and portability pull in opposite
+directions:
+
+| | `net8.0` | `net10.0` |
+|---|---|---|
+| Protocol, reader, streaming | yes | yes |
+| `SerialPortTransportFactory` (name the port) | yes | yes |
+| Windows FTDI registry + WMI discovery | yes | no |
+| `System.Management` dependency | yes | **no** |
+
+The `net10.0` target carries no Windows-only code and no `System.Management`, so a
+host that publishes Native AOT for Linux can reference it without the trim
+analyzer meeting WMI. It names its port - `COM4`, `/dev/ttyUSB0` - instead of
+having one discovered.
 
 ## Features
 
 - Async connection and controls with cancellation.
 - `IAsyncEnumerable<TagRead>` and rich tag events: EPC, TID when available, PC,
   antenna, raw RSSI, timestamps, read counts, and raw payloads.
-- Automatic port discovery and reconnection pinned to the Windows device identity.
+- Automatic port discovery and reconnection pinned to the Windows device identity
+  (`net8.0`), or a named port through `SerialPortTransportFactory` (both targets).
 - Bounded queues, overflow reporting and configurable deduplication.
 - Temporary transmit power, real-time and buffered inventory.
 - FastTID, buzzer and temperature APIs, subject to firmware support.
