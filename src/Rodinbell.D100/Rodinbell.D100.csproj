@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Managed serial protocol client for the Rodinbell D100 UHF RFID reader on Windows.</Description>
+    <PackageId>Rodinbell.D100</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>rodinbell-d100-managed-code contributors</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>RFID;UHF;Rodinbell;D100;serial;EPC</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/suporterfid/rodinbell-d100-managed-code</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/suporterfid/rodinbell-d100-managed-code</PackageProjectUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="Rodinbell.D100.Tests" /></ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD_PARTY_NOTICES.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
