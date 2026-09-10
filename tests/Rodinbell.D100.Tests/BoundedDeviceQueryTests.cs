@@ -8,11 +8,13 @@ public sealed class BoundedDeviceQueryTests
     public async Task Expired_query_cannot_supply_late_identity_to_a_new_lookup()
     {
         using var releaseOldQuery = new ManualResetEventSlim();
+        var oldQueryStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         int calls = 0;
         var lookup = new BoundedDeviceQuery(() =>
         {
             if (Interlocked.Increment(ref calls) == 1)
             {
+                oldQueryStarted.SetResult();
                 releaseOldQuery.Wait();
                 return new HashSet<string> { "removed-reader" };
             }
@@ -22,9 +24,12 @@ public sealed class BoundedDeviceQueryTests
         try
         {
             Assert.Empty(lookup.Read()); // First query has expired but its worker is still blocked.
-            var next = Task.Run(lookup.Read);
-            // Expired generations must fail closed immediately, without waiting for the old worker.
-            Assert.Empty(await next.WaitAsync(TimeSpan.FromMilliseconds(100)));
+            await oldQueryStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            // Isolate this caller from the thread pool occupied by the blocked query and other tests.
+            var next = Task.Factory.StartNew(lookup.Read, CancellationToken.None,
+                TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            // The expired generation must return empty while its old worker is still blocked.
+            Assert.Empty(await next.WaitAsync(TimeSpan.FromSeconds(5)));
             Assert.Equal(1, Volatile.Read(ref calls));
             releaseOldQuery.Set();
 
