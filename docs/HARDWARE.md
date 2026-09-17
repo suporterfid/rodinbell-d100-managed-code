@@ -42,6 +42,33 @@ No tag-memory write, EPC rewrite or password modification is implemented.
 Automated CI uses fake transports and never accesses COM4. A clean build or passing
 protocol test is not evidence that a firmware-specific command works on hardware.
 
+## Repeating the power sweep
+
+`scripts/Test-D100Power.ps1` runs the sweep that produced the table below. It publishes
+`examples/D100.PowerSweep` on first use and reuses the binary after that.
+
+```powershell
+./scripts/Test-D100Power.ps1 -Port COM4                    # 18-26 dBm, one second per level
+./scripts/Test-D100Power.ps1 -Port COM6 -Dwell 5 -Runs 3
+./scripts/Test-D100Power.ps1 -Port COM4 -Rebuild           # after editing the example
+```
+
+The example is separate from `D100.Console` because that one discovers the reader through WMI and is
+Windows-only. This one names its port and goes through `SerialPortTransportFactory`, so it also runs
+on Linux against `/dev/ttyUSB0`.
+
+Two things the output is worth reading carefully for:
+
+- With a one-second dwell a good arrangement yields roughly fifteen reads per level. That answers
+  "did it read", but it is a thin sample for counting marginal tags - one that appears in half the
+  cycles can miss every sample. Use `-Dwell 5` or more when the count matters.
+- Distinct-EPC counts that move between runs indicate a marginal tag, not a power threshold. A real
+  threshold lands at the same level every run. `-Runs 3` is the cheapest way to tell them apart.
+
+Zero reads at every power, with the reader still answering commands, is geometry or shielding rather
+than a fault - the command path can be confirmed independently, since the reader still acknowledges
+the power set and reports it back.
+
 ## Transmit power range, measured 2026-09-10
 
 A D100 on firmware 1.9 was swept across the whole byte range the command accepts, 0–30 dBm in steps

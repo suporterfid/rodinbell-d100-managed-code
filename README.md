@@ -57,7 +57,9 @@ power, buffer operations, cancellation and reconnection behavior.
 .github/              Windows CI, dependency updates, pull-request template
 docs/                 Usage, protocol, hardware validation and GitHub setup
 examples/D100.Console/ Bounded console sample; hardware access is explicit
+examples/D100.PowerSweep/ Power sweep over a named port; portable, runs on Linux too
 scripts/verify.ps1    Restore, build, offline tests and local NuGet packaging
+scripts/Test-D100Power.ps1  Runs the power sweep against a reader; see docs/HARDWARE.md
 src/Rodinbell.D100/   Managed reader library
 tests/Rodinbell.D100.Tests/  Protocol and simulated transport tests
 ManagedD100.sln       Visual Studio / dotnet solution
